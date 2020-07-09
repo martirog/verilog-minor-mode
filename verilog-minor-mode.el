@@ -78,3 +78,13 @@
         (message cmd)
         (shell-command cmd)
       (setq repos (cdr repos))))))
+
+(define-minor-mode verilog-minor-mode
+  "Get your foos in the right places."
+  :lighter " vmin")
+
+(provide 'verilog-minor-mode)
+
+  ;:keymap (let ((map (make-sparse-keymap)))
+  ;          (define-key map (kbd "C-c f") 'insert-foo)
+  ;          map))
