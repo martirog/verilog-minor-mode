@@ -55,7 +55,6 @@
           (if (null first)
               (setq cmd (concat cmd " -or")))
           (setq cmd (concat cmd " -path \"*" (car exclutions) "*\" -prune"))
-          (message cmd)
           (setq exclutions (cdr exclutions))
           (setq first nil))
         ; iterate over file extentions to search in
@@ -63,20 +62,16 @@
           (if (null first)
               (setq cmd (concat cmd " -or")))
           (setq cmd (concat cmd " -name \"*" (car extentions) "\""))
-          (message cmd)
           (setq extentions (cdr extentions))
           (setq first nil))
         ; add ctags command
         (setq cmd (concat cmd " | xargs ctags -a -e"))
         (while ctags-switches
           (setq cmd (concat cmd " " (car ctags-switches)))
-          (message cmd)
           (setq ctags-switches (cdr ctags-switches)))
         (setq cmd (concat cmd " -o " tag-file))
-        (message cmd)
         (shell-command cmd))
       (setq repos (cdr repos))
-      (message "testing"))))
 
 (define-minor-mode verilog-minor-mode
   "Get your foos in the right places."
