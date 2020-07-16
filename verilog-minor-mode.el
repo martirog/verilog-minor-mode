@@ -71,7 +71,7 @@
           (setq ctags-switches (cdr ctags-switches)))
         (setq cmd (concat cmd " -o " tag-file))
         (shell-command cmd))
-      (setq repos (cdr repos))
+      (setq repos (cdr repos)))))
 
 (define-minor-mode verilog-minor-mode
   "Get your foos in the right places."
