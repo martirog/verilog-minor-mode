@@ -73,6 +73,21 @@
         (shell-command cmd))
       (setq repos (cdr repos)))))
 
+(defadvice xref-find-definitions (around refresh-etags activate)
+   "Rerun etags and reload tags if tag not found and redo find-tag.
+   If buffer is modified, ask about save before running etags."
+   (condition-case err
+       ad-do-it
+     (error (and (buffer-modified-p)
+                 (not (ding))
+                 (y-or-n-p "Buffer is modified, save it? ")
+                 (save-buffer))
+            (vminor-regen-tags)
+            ad-do-it)))
+
+(add-to-list 'tags-table-list
+      (concat vminor-tag-path vminor-tag-file-name))
+
 (define-minor-mode verilog-minor-mode
   "Get your foos in the right places."
   :lighter " vmin")
