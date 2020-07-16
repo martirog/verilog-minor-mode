@@ -42,36 +42,32 @@
           (message "deleting file: %s" tag-file)
           (delete-file tag-file)))
     ; iterate over repos
-    (while repos
+    (dolist (rep repos)
       (let ((cmd "find")
-            (exclutions (cdr (car repos)))
-            (repo (car (car repos)))
+            (exclutions (cdr rep))
+            (repo (car rep))
             (ctags-switches vminor-ctags-verilog-def)
             (extentions vminor-file-extention)
             (first t))
         (setq cmd (concat cmd " " repo))
         ; iterate over paths in the repo to ignore
-        (while exclutions
+        (dolist (elem exclutions cmd)
           (if (null first)
               (setq cmd (concat cmd " -or")))
-          (setq cmd (concat cmd " -path \"*" (car exclutions) "*\" -prune"))
-          (setq exclutions (cdr exclutions))
+          (setq cmd (concat cmd " -path \"*" elem "*\" -prune"))
           (setq first nil))
         ; iterate over file extentions to search in
-        (while extentions
+        (dolist (elem extentions cmd)
           (if (null first)
               (setq cmd (concat cmd " -or")))
-          (setq cmd (concat cmd " -name \"*" (car extentions) "\""))
-          (setq extentions (cdr extentions))
+          (setq cmd (concat cmd " -name \"*" elem "\""))
           (setq first nil))
         ; add ctags command
         (setq cmd (concat cmd " | xargs ctags -a -e"))
-        (while ctags-switches
-          (setq cmd (concat cmd " " (car ctags-switches)))
-          (setq ctags-switches (cdr ctags-switches)))
+        (dolist (elem ctags-switches cmd)
+          (setq cmd (concat cmd " " elem)))
         (setq cmd (concat cmd " -o " tag-file))
-        (shell-command cmd))
-      (setq repos (cdr repos)))))
+        (shell-command cmd)))))
 
 (defadvice xref-find-definitions (around refresh-etags activate)
    "Rerun etags and reload tags if tag not found and redo find-tag.
