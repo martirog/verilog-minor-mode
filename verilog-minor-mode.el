@@ -81,12 +81,68 @@
             (vminor-regen-tags)
             ad-do-it)))
 
+; copied from https://www.emacswiki.org/emacs/HippieExpand
+(defun he-tag-beg ()
+  (let ((p
+         (save-excursion
+           (backward-word 1)
+           (point))))
+    p))
+
+(defun tags-complete-tag (string predicate what)
+  (save-excursion
+    (if (fboundp 'tags-completion-table)
+     (if (eq what t)
+         (all-completions string (tags-completion-table) predicate)
+       (try-completion string (tags-completion-table) predicate))
+     nil)))
+
+(defun try-expand-tag (old)
+  (unless  old
+    (he-init-string (he-tag-beg) (point))
+    (setq tags-he-expand-list (sort
+                          (all-completions he-search-string 'tags-complete-tag) 'string-lessp)))
+  (while (and tags-he-expand-list
+              (he-string-member (car tags-he-expand-list) he-tried-table))
+    (setq tags-he-expand-list (cdr tags-he-expand-list)))
+  (if (null tags-he-expand-list)
+      (progn
+        (when old (he-reset-string))
+        ())
+    (he-substitute-string (car tags-he-expand-list))
+    (setq tags-he-expand-list (cdr tags-he-expand-list))
+    t))
+
+
+(defalias 'vminor-expand-abbrev (make-hippie-expand-function
+                                 '(try-expand-dabbrev
+                                   try-expand-dabbrev-visible
+                                   try-expand-tag)))
+
+(defun vminor-verilog-tab ()
+  (interactive)
+  (message "my version")
+  (let ((boi-point
+           (save-excursion
+             (back-to-indentation)
+             (point))))
+    (electric-verilog-tab)
+    (if (and
+         (save-excursion
+          (back-to-indentation)
+          (= (point) boi-point))
+         (looking-at "\\>"))
+        (vminor-expand-abbrev nil))))
+
 (add-to-list 'tags-table-list
       (concat vminor-tag-path vminor-tag-file-name))
 
 (define-minor-mode verilog-minor-mode
   "Get your foos in the right places."
-  :lighter " vmin")
+  :lighter " vmin"
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map "\t" 'vminor-verilog-tab)
+            map))
 
 (provide 'verilog-minor-mode)
 
