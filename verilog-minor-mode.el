@@ -91,11 +91,14 @@
 
 (defun tags-complete-tag (string predicate what)
   (save-excursion
-    (if (fboundp 'tags-completion-table)
-     (if (eq what t)
-         (all-completions string (tags-completion-table) predicate)
-       (try-completion string (tags-completion-table) predicate))
-     nil)))
+    (if (null (fboundp 'tags-completion-table))
+        (progn
+          (vminor-regen-tags)
+          (visit-tags-table)))
+    (if (eq what t)
+        (all-completions string (tags-completion-table) predicate)
+      (try-completion string (tags-completion-table) predicate))
+    nil))
 
 (defun try-expand-tag (old)
   (unless  old
