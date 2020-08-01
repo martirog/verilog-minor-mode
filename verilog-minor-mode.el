@@ -93,7 +93,7 @@
     p))
 
 (defun check-for-tags-table ()
-    (if (null (fboundp 'tags-completion-table))
+    (if (null (get-buffer vminor-tag-file-name))
         (cond
          ((not (null vminor-path-to-repos))
           (vminor-regen-tags)
