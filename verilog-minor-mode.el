@@ -32,6 +32,9 @@
 (defvar vminor-tag-file-name "vminor_TAGS"
   "name of the TAGS file")
 
+(defvar vminor-use-vc-root-for-tags t
+  "you only want tags for the current repo and that repo uses GIT")
+
 (defun vminor-regen-tags()
   (interactive) ; make this ask for files and paths
   (let ((tag-file (concat vminor-tag-path vminor-tag-file-name))
@@ -78,7 +81,7 @@
                  (not (ding))
                  (y-or-n-p "Buffer is modified, save it? ")
                  (save-buffer))
-            (vminor-regen-tags)
+            (check-for-tags-table)
             ad-do-it)))
 
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
@@ -89,15 +92,28 @@
            (point))))
     p))
 
+(defun check-for-tags-table ()
+    (if (null (fboundp 'tags-completion-table))
+        (cond
+         ((not (null vminor-path-to-repos))
+          (vminor-regen-tags)
+          (visit-tags-table (concat vminor-tag-path vminor-tag-file-name))
+          t)
+         ((not (null vminor-use-vc-root-for-tags))
+          (add-to-list 'vminor-path-to-repos (cons (vc-root-dir) nil))
+          (vminor-regen-tags)
+          (visit-tags-table (concat vminor-tag-path vminor-tag-file-name))
+          t)
+         (t nil))
+      t))
+
 (defun tags-complete-tag (string predicate what)
   (save-excursion
-    (if (null (fboundp 'tags-completion-table))
-        (progn
-          (vminor-regen-tags)
-          (visit-tags-table (concat vminor-tag-path vminor-tag-file-name))))
-    (if (eq what t)
-        (all-completions string (tags-completion-table) predicate)
-      (try-completion string (tags-completion-table) predicate))))
+    (if (check-for-tags-table)
+      (if (eq what t)
+          (all-completions string (tags-completion-table) predicate)
+        (try-completion string (tags-completion-table) predicate))
+      nil)))
 
 (defun try-expand-tag (old)
   (unless  old
