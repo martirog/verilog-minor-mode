@@ -94,11 +94,10 @@
     (if (null (fboundp 'tags-completion-table))
         (progn
           (vminor-regen-tags)
-          (visit-tags-table)))
+          (visit-tags-table (concat vminor-tag-path vminor-tag-file-name))))
     (if (eq what t)
         (all-completions string (tags-completion-table) predicate)
-      (try-completion string (tags-completion-table) predicate))
-    nil))
+      (try-completion string (tags-completion-table) predicate))))
 
 (defun try-expand-tag (old)
   (unless  old
