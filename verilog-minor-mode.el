@@ -9,7 +9,7 @@
     "--regex-systemverilog=\"/^\\s*\\bprogram\\b\\s*(\\b\\w+\\b)/\\1/p,program/\""
     "--regex-systemverilog=\"/^\\s*\\binterface\\b\\s*(\\b\\w+\\b)/\\1/i,interface/\""
     "--regex-systemverilog=\"/^\\s*\\btypedef\\b\\s+.*\\s+(\\b\\w+\\b)\\s*;/\\1/e,typedef/\""
-    "--regex-systemverilog=\"/^\\s*`define\\b\\s*(\\w+)/`\\1/d,define/\""
+    "--regex-systemverilog=\"/^\\s*\\`define\\b\\s*(\\w+)/\\`\\1/d,define/\""
     "--regex-systemverilog=\"/}\\s*(\\b\\w+\\b)\\s*;/\\1/e,typedef/\""
     "--regex-systemverilog=\"/^\\s*(\\b(static|local|private|rand)\\b)*\\s*(\\b(shortint|int|longint)\\b)\\s*(\\bunsigned\\b)?(\\s*\\[.+\\])*\\s*(\\b\\w+\\b)/\\7/v,variable/\""
     "--regex-systemverilog=\"/^\\s*(\\b(static|local|private|rand)\\b)*\\s*(\\b(byte|bit|logic|reg|integer|time)\\b)(\\s*\\[.+\\])*\\s*(\\b\\w+\\b)/\\6/v,variable/\""
@@ -26,7 +26,7 @@
   '("v" "sv" "vh" "svh")
   "file extentions to use in the search for files to tag")
 
-(defvar vminor-tag-path "/home/martin/" ;nil
+(defvar vminor-tag-path (concat (getenv "HOME") "/") ;nil
   "path to puth the TAGS file")
 
 (defvar vminor-tag-file-name "vminor_TAGS"
