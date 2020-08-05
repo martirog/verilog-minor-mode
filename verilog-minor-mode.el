@@ -48,6 +48,7 @@
   "System verilog keywords and functions")
 
 (defun vminor-regen-tags()
+  "regenerate the tags file using ctags. so you need to have ctags in your path for this to work"
   (interactive) ; make this ask for files and paths
   (let ((tag-file (concat vminor-tag-path vminor-tag-file-name))
         (repos vminor-path-to-repos))
@@ -97,7 +98,9 @@
             ad-do-it)))
 
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
+; this need to be updated to allow for dollar sign($) or back tick in front of the word
 (defun he-tag-beg ()
+  "find the start of the start of the system verilog expression. this only looks at words for now(so I lied in the first sentece)"
   (let ((p
          (save-excursion
            (backward-word 1)
@@ -105,6 +108,8 @@
     p))
 
 (defun check-for-tags-table ()
+  "check if the tags are loaded and if not check if it can be regenerated"
+  ;This needs update to check if vc-root fails
     (if (null (get-buffer vminor-tag-file-name))
         (cond
          ((not (null vminor-path-to-repos))
@@ -119,7 +124,9 @@
          (t nil))
       t))
 
+; copied from https://www.emacswiki.org/emacs/HippieExpand
 (defun tags-complete-tag (string predicate what)
+  "find compleations from tags table"
   (save-excursion
     (if (check-for-tags-table)
       (if (eq what t)
@@ -128,15 +135,19 @@
       nil)))
 
 (defun try-expand-tag (old)
+  "try to find compleations in tags"
   (find-expand-tag old 'tags-complete-tag))
 
 (defun try-expand-sv (old)
+  "try to find compleation from the system verilog spec"
   (find-expand-tag old vminor-sv-key-words))
 
 (defun try-expand-common-uvm (old)
+  "try to find compleation from the most commenly used UVM structures"
   (find-expand-tag old vminor-common-uvm))
 
 (defun find-expand-tag (old what)
+  "find tags from a function or a list this is made to fit in make-hippie-expand-function"
   (unless  old
     (he-init-string (he-tag-beg) (point))
     (setq tags-he-expand-list (sort
@@ -152,7 +163,7 @@
     (setq tags-he-expand-list (cdr tags-he-expand-list))
     t))
 
-
+; compose the compleation order
 (defalias 'vminor-expand-abbrev (make-hippie-expand-function
                                  '(try-expand-dabbrev
                                    try-expand-sv
@@ -161,6 +172,7 @@
                                    try-expand-tag)))
 
 (defun vminor-verilog-tab ()
+  "extend the verilog mode tab so that if the verilog-mode tab has no affect and we are at the end of a word we use the vminor-expand-abbrev function"
   (interactive)
   (message "my version")
   (let ((boi-point
@@ -177,7 +189,7 @@
 
 (require 'verilog-mode)
 (define-minor-mode verilog-minor-mode
-  "Get your foos in the right places."
+  "set up verilog minor mode"
   :lighter " vmin"
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map "\t" 'vminor-verilog-tab)
