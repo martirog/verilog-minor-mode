@@ -35,6 +35,13 @@
 (defvar vminor-use-vc-root-for-tags t
   "you only want tags for the current repo and that repo uses GIT")
 
+(defvar vminor-sv-key-words
+  '("module" "endmodule"
+    "function" "endfunction"
+    "task" "endtask"
+    "push_back" "push_front" "pop_back" "pop_front")
+  "System verilog keywords and functions")
+
 (defun vminor-regen-tags()
   (interactive) ; make this ask for files and paths
   (let ((tag-file (concat vminor-tag-path vminor-tag-file-name))
@@ -116,10 +123,16 @@
       nil)))
 
 (defun try-expand-tag (old)
+  (find-expand-tag old 'tags-complete-tag))
+
+(defun try-expand-sv (old)
+  (find-expand-tag old vminor-sv-key-words))
+
+(defun find-expand-tag (old what)
   (unless  old
     (he-init-string (he-tag-beg) (point))
     (setq tags-he-expand-list (sort
-                          (all-completions he-search-string 'tags-complete-tag) 'string-lessp)))
+                          (all-completions he-search-string what) 'string-lessp)))
   (while (and tags-he-expand-list
               (he-string-member (car tags-he-expand-list) he-tried-table))
     (setq tags-he-expand-list (cdr tags-he-expand-list)))
@@ -134,6 +147,7 @@
 
 (defalias 'vminor-expand-abbrev (make-hippie-expand-function
                                  '(try-expand-dabbrev
+                                   try-expand-sv
                                    try-expand-dabbrev-visible
                                    try-expand-tag)))
 
