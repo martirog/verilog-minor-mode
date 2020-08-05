@@ -175,9 +175,6 @@
          (looking-at "\\>"))
         (vminor-expand-abbrev nil))))
 
-(add-to-list 'tags-table-list
-      (concat vminor-tag-path vminor-tag-file-name))
-
 (require 'verilog-mode)
 (define-minor-mode verilog-minor-mode
   "Get your foos in the right places."
@@ -186,6 +183,8 @@
             (define-key map "\t" 'vminor-verilog-tab)
             (define-key map (kbd "C-c a") 'hs-toggle-hiding)
             map)
+  (add-to-list 'tags-table-list
+               (concat vminor-tag-path vminor-tag-file-name))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
   (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function)))
 
