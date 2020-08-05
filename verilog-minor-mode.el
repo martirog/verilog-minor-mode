@@ -42,6 +42,11 @@
     "push_back" "push_front" "pop_back" "pop_front")
   "System verilog keywords and functions")
 
+(defvar vminor-common-uvm
+  '("uvm_object" "`uvm_object_utils"
+    "uvm_component" "`uvm_component_utils")
+  "System verilog keywords and functions")
+
 (defun vminor-regen-tags()
   (interactive) ; make this ask for files and paths
   (let ((tag-file (concat vminor-tag-path vminor-tag-file-name))
@@ -128,6 +133,9 @@
 (defun try-expand-sv (old)
   (find-expand-tag old vminor-sv-key-words))
 
+(defun try-expand-common-uvm (old)
+  (find-expand-tag old vminor-common-uvm))
+
 (defun find-expand-tag (old what)
   (unless  old
     (he-init-string (he-tag-beg) (point))
@@ -148,6 +156,7 @@
 (defalias 'vminor-expand-abbrev (make-hippie-expand-function
                                  '(try-expand-dabbrev
                                    try-expand-sv
+                                   try-expand-common-uvm
                                    try-expand-dabbrev-visible
                                    try-expand-tag)))
 
