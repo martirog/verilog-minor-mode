@@ -39,7 +39,8 @@
   '("module" "endmodule"
     "function" "endfunction"
     "task" "endtask"
-    "push_back" "push_front" "pop_back" "pop_front")
+    "push_back" "push_front" "pop_back" "pop_front"
+    "$display" "$sformatf")
   "System verilog keywords and functions")
 
 (defvar vminor-common-uvm
@@ -104,6 +105,8 @@
   (let ((p
          (save-excursion
            (backward-word 1)
+           (if (memq (preceding-char) '(?$ ?`))
+               (backward-char))
            (point))))
     p))
 
