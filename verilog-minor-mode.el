@@ -39,6 +39,8 @@
   '("module" "endmodule"
     "function" "endfunction"
     "task" "endtask"
+    "package" "endpackage"
+    "class" "endclass"
     "push_back" "push_front" "pop_back" "pop_front"
     "$display" "$sformatf")
   "System verilog keywords and functions")
