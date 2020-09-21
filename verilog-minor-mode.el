@@ -1,7 +1,7 @@
 (defvar vminor-ctags-verilog-def
   '("--langdef=systemverilog"
     "--langmap=systemverilog:.v.vg.sv.svh.tv.vinc"
-    "--regex-systemverilog=\"/^\\s*(\\b(static|local|virtual|protected)\\b)*\\s*\\bclass\\b\\s*(\\b\\w+\\b)/\\3/c,class/\""
+    "--regex-systemverilog=\"/^\\s*(\\b(static|local|virtual|protected|interface)\\b)*\\s*\\bclass\\b\\s*(\\b\\w+\\b)/\\3/c,class/\""
     "--regex-systemverilog=\"/^\\s*(\\b(static|local|virtual|protected)\\b)*\\s*\\btask\\b\\s*(\\b(static|automatic)\\b)?\\s*(\\w+::)?\\s*(\\b\\w+\\b)/\\6/t,task/\""
     "--regex-systemverilog=\"/^\\s*(\\b(static|local|virtual|protected)\\b)*\\s*\\bfunction\\b\\s*(\\b(\\w+)\\b)?\\s*(\\w+::)?\\s*(\\b\\w+\\b)/\\6/f,function/\""
     "--regex-systemverilog=\"/^\\s*\\bmodule\\b\\s*(\\b\\w+\\b)/\\1/m,module/\""
@@ -97,7 +97,7 @@
                  (not (ding))
                  (y-or-n-p "Buffer is modified, save it? ")
                  (save-buffer))
-            (check-for-tags-table)
+            (vminor-regen-tags)
             ad-do-it)))
 
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
