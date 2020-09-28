@@ -36,7 +36,8 @@
   "you only want tags for the current repo and that repo uses GIT")
 
 (defvar vminor-sv-key-words
-  '("module" "endmodule"
+  '("begin" "end"
+    "module" "endmodule"
     "function" "endfunction"
     "task" "endtask"
     "package" "endpackage"
