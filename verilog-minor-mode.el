@@ -208,6 +208,7 @@
   (add-to-list 'tags-table-list
                (concat vminor-tag-path vminor-tag-file-name))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
-  (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function)))
+  (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function))
+  (flyspell-prog-mode))
 
 (provide 'verilog-minor-mode)
