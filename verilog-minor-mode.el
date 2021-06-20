@@ -195,7 +195,8 @@
           (back-to-indentation)
           (= (point) boi-point))
          (looking-at "\\>"))
-        (vminor-expand-abbrev nil))))
+        (vminor-expand-abbrev nil)
+      (setq he-num -1))))
 
 (require 'verilog-mode)
 (define-minor-mode verilog-minor-mode
