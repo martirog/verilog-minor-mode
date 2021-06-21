@@ -38,6 +38,7 @@
 (defvar vminor-sv-key-words
   '("begin" "end"
     "module" "endmodule"
+    "initial" "always"
     "function" "endfunction"
     "task" "endtask"
     "package" "endpackage"
@@ -46,6 +47,7 @@
     "static" "automatic"
     "foreach" "break"
     "semaphore"
+    "covergroup" "coverpoint" "cross"
     "push_back" "push_front" "pop_back" "pop_front"
     "$display" "$sformatf")
   "System verilog keywords and functions")
@@ -87,7 +89,7 @@
           (setq cmd (concat cmd " -name \"*" elem "\""))
           (setq first nil))
         ; add ctags command
-        (setq cmd (concat cmd " | xargs ctags -a -e"))
+        (setq cmd (concat cmd " | xargs /usr/bin/ctags -a -e")) ; a hack for now
         (dolist (elem ctags-switches cmd)
           (setq cmd (concat cmd " " elem)))
         (setq cmd (concat cmd " -o " tag-file))
