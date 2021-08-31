@@ -1,23 +1,21 @@
 (defvar vminor-ctags-verilog-def
-  '("--langdef=systemverilog"
-    "--langmap=systemverilog:.v.vg.sv.svh.tv.vinc"
-    "--regex-systemverilog=\"/^\\s*(\\b(static|local|virtual|protected|interface)\\b)*\\s*\\bclass\\b\\s*(\\b\\w+\\b)/\\3/c,class/\""
-    "--regex-systemverilog=\"/^\\s*(\\b(static|local|virtual|protected)\\b)*\\s*\\btask\\b\\s*(\\b(static|automatic)\\b)?\\s*(\\w+::)?\\s*(\\b\\w+\\b)/\\6/t,task/\""
-    "--regex-systemverilog=\"/^\\s*(\\b(static|local|virtual|protected)\\b)*\\s*\\bfunction\\b\\s*(\\b(\\w+)\\b)?\\s*(\\w+::)?\\s*(\\b\\w+\\b)/\\6/f,function/\""
-    "--regex-systemverilog=\"/^\\s*\\bmodule\\b\\s*(\\b\\w+\\b)/\\1/m,module/\""
-    "--regex-systemverilog=\"/^\\s*\\bpackage\\b\\s*(\\b\\w+\\b)/\\1/P,package/\""
-    "--regex-systemverilog=\"/^\\s*\\bprogram\\b\\s*(\\b\\w+\\b)/\\1/p,program/\""
-    "--regex-systemverilog=\"/^\\s*\\binterface\\b\\s*(\\b\\w+\\b)/\\1/i,interface/\""
-    "--regex-systemverilog=\"/^\\s*\\btypedef\\b\\s+.*\\s+(\\b\\w+\\b)\\s*;/\\1/e,typedef/\""
-    "--regex-systemverilog=\"/^\\s*\\`define\\b\\s*(\\w+)/\\`\\1/d,define/\""
-    "--regex-systemverilog=\"/}\\s*(\\b\\w+\\b)\\s*;/\\1/e,typedef/\""
-    "--regex-systemverilog=\"/^\\s*(\\b(static|local|private|rand)\\b)*\\s*(\\b(shortint|int|longint)\\b)\\s*(\\bunsigned\\b)?(\\s*\\[.+\\])*\\s*(\\b\\w+\\b)/\\7/v,variable/\""
-    "--regex-systemverilog=\"/^\\s*(\\b(static|local|private|rand)\\b)*\\s*(\\b(byte|bit|logic|reg|integer|time)\\b)(\\s*\\[.+\\])*\\s*(\\b\\w+\\b)/\\6/v,variable/\""
-    "--regex-systemverilog=\"/^\\s*(\\b(static|local|private)\\b)*\\s*(\\b(real|shortreal|chandle|string|event)\\b)(\\s*\\[.+\\])*\\s*(\\b\\w+\\b)/\\6/v,variable/\""
-    "--regex-systemverilog=\"/(\\b(input|output|inout)\\b)?\\s*(\\[.+\\])*\\s*(\\b(wire|reg|logic)\\b)\\s*(\\[.+\\])*\\s*(#((.+)|\\S+)))?\\s*(\\b\\w+\\b)/\\9/v,variable/\""
-    "--regex-systemverilog=\"/(\\b(parameter|localparam)\\b).+(\\b\\w+\\b)\\s*=/\\3/a,parameter/\""
-    "--systemverilog-kinds=+ctfmpied")
-  "define how ctags should find system verilog tags")
+  '("--language=none"
+    "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\|interface\\)*[ \\t]*class[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\2/\""
+    "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\)*[ \\t]*task[ \\t]*\\(static\\|automatic\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)?[ \\t]*[0-9a-zA-Z\\$_]+/\\3/\""
+    "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\)*[ \\t]*function[ \\t]*\\([0-9a-zA-Z\\$_]+\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)?[ \\t]*[0-9a-zA-Z\\$_]+/\\3/\""
+    "--regex=\"/^[ \\t]*module[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
+    "--regex=\"/^[ \\t]*package[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
+    "--regex=\"/^[ \\t]*program[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
+    "--regex=\"/^[ \\t]*interface[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
+    "--regex=\"/^[ \\t]*typedef[ \\t]+.*[ \\t]+\\([0-9a-zA-Z\\$_]+\\)[ \\t]*;/\\1/\""
+    "--regex=\"/^[ \\t]*\\`define[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\`\\1/\""
+    "--regex=\"/}[ \\t]*\\([0-9a-zA-Z\\$_]+\\)[ \\t]*;/\\1/\""
+    "--regex=\"/^[ \\t]*\\(static\\|local\\|private\\|rand\\)*[ \\t]*\\(shortint\\|int\\|longint\\)[ \\t]*unsigned?\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
+    "--regex=\"/^[ \\t]*\\(static\\|local\\|private\\|rand\\)*[ \\t]*\\(byte\\|bit\\|logic\\|reg\\|integer\\|time\\)\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
+    "--regex=\"/^[ \\t]*\\(static\\|local\\|private\\)*[ \\t]*\\(real\\|shortreal\\|chandle\\|string\\|event\\)\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
+    "--regex=\"/\\(input\\|output\\|inout\\)?[ \\t]*\\([.+]\\)*[ \\t]*\\(wire\\|reg\\|logic\\)[ \\t]*\\([.+]\\)*[ \\t]*\\(#\\(\\(.+\\)\\|[ \\t]+\\)\\)\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\8/\""
+    "--regex=\"/\\(parameter\\|localparam\\).+\\([0-9a-zA-Z\\$_]+\\)[ \\t]*=/\\2\""
+  "define how ctags should find system verilog tags"))
 
 (defvar vminor-path-to-repos nil
   "list of cons: repos to search for systemverilog files . exclude list")
@@ -89,7 +87,8 @@
           (setq cmd (concat cmd " -name \"*" elem "\""))
           (setq first nil))
         ; add ctags command
-        (setq cmd (concat cmd " | xargs /usr/bin/ctags -a -e")) ; a hack for now
+        (let ((etags-run (car (directory-files (invocation-directory) t ".*etags"))))
+             (setq cmd (concat cmd " | xargs " etags-run " -a"))) ; a hack for now
         (dolist (elem ctags-switches cmd)
           (setq cmd (concat cmd " " elem)))
         (setq cmd (concat cmd " -o " tag-file))
