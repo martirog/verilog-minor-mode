@@ -55,6 +55,43 @@
     "uvm_component" "`uvm_component_utils")
   "System verilog keywords and functions")
 
+(defun vminor-run-etags (repo exclution static ctags-switches extentions)
+  "Generate the find/etags commandline and run it"
+  (let ((cmd "find")
+        (first t))
+    (setq cmd (concat cmd " " repo))
+                                        ; iterate over paths in the repo to ignore
+    (let ((first_it t))
+      (dolist (elem exclutions cmd)
+        (if (null first)
+            (setq cmd (concat cmd " -or")))
+        (when first_it
+          (setq cmd (concat cmd " \\("))
+          (setq first_it nil))
+        (setq cmd (concat cmd " -path \"*" elem "*\""))
+        (setq first nil))
+      (when (null first_it)
+        (setq cmd (concat cmd " \\) -prune"))))
+                                        ; iterate over file extentions to search in
+    (let ((first_it t))
+      (dolist (elem extentions cmd)
+        (if (null first)
+            (setq cmd (concat cmd " -or")))
+        (when first_it
+          (setq cmd (concat cmd " \\("))
+          (setq first_it nil))
+        (setq cmd (concat cmd " -name \"*\\." elem "\""))
+        (setq first nil))
+      (when (null first_it)
+        (setq cmd (concat cmd " \\) -print"))))
+                                        ; add ctags command
+    (let ((etags-run (car (directory-files (invocation-directory) t ".*etags"))))
+      (setq cmd (concat cmd " | xargs " etags-run " -a"))) ; a hack for now
+    (dolist (elem ctags-switches cmd)
+      (setq cmd (concat cmd " " elem)))
+    (setq cmd (concat cmd " -o " tag-file))
+    (shell-command cmd)))
+
 (defun vminor-regen-tags()
   "regenerate the tags file using ctags. so you need to have ctags in your path for this to work"
   (interactive) ; make this ask for files and paths
@@ -67,44 +104,12 @@
           (delete-file tag-file)))
     ; iterate over repos
     (dolist (rep repos)
-      (let ((cmd "find")
-            (exclutions (cdr rep))
+      (let ((exclutions (car (cdr rep)))
+            (static (cdr (cdr rep)))
             (repo (car rep))
             (ctags-switches vminor-ctags-verilog-def)
-            (extentions vminor-file-extention)
-            (first t))
-        (setq cmd (concat cmd " " repo))
-        ; iterate over paths in the repo to ignore
-        (let ((first_it t))
-          (dolist (elem exclutions cmd)
-            (if (null first)
-                (setq cmd (concat cmd " -or")))
-            (when first_it
-              (setq cmd (concat cmd " \\("))
-              (setq first_it nil))
-            (setq cmd (concat cmd " -path \"*" elem "*\""))
-            (setq first nil))
-          (when (null first_it)
-            (setq cmd (concat cmd " \\) -prune"))))
-        ; iterate over file extentions to search in
-        (let ((first_it t))
-          (dolist (elem extentions cmd)
-            (if (null first)
-                (setq cmd (concat cmd " -or")))
-            (when first_it
-              (setq cmd (concat cmd " \\("))
-              (setq first_it nil))
-            (setq cmd (concat cmd " -name \"*\\." elem "\""))
-            (setq first nil))
-          (when (null first_it)
-            (setq cmd (concat cmd " \\) -print"))))
-        ; add ctags command
-        (let ((etags-run (car (directory-files (invocation-directory) t ".*etags"))))
-             (setq cmd (concat cmd " | xargs " etags-run " -a"))) ; a hack for now
-        (dolist (elem ctags-switches cmd)
-          (setq cmd (concat cmd " " elem)))
-        (setq cmd (concat cmd " -o " tag-file))
-        (shell-command cmd)))))
+            (extentions vminor-file-extention))
+        (vminor-run-etags repo exclutions static ctags-switches extentions)))))
 
 (defadvice xref-find-definitions (around refresh-etags activate)
    "Rerun etags and reload tags if tag not found and redo find-tag.
