@@ -27,7 +27,7 @@
 (defvar vminor-tag-path (concat (getenv "HOME") "/") ;nil
   "path to puth the TAGS file")
 
-(defvar vminor-tag-file-name "vminor_TAGS"
+(defvar vminor-tag-file-post-fix "vminor_TAGS"
   "name of the TAGS file")
 
 (defvar vminor-use-vc-root-for-tags t
@@ -55,7 +55,7 @@
     "uvm_component" "`uvm_component_utils")
   "System verilog keywords and functions")
 
-(defun vminor-run-etags (repo exclution static ctags-switches extentions)
+(defun vminor-run-etags (repo exclution ctags-switches extentions tag-file)
   "Generate the find/etags commandline and run it"
   (let ((cmd "find")
         (first t))
@@ -92,24 +92,29 @@
     (setq cmd (concat cmd " -o " tag-file))
     (shell-command cmd)))
 
-(defun vminor-regen-tags()
+(defun generate-tag-file-name (tag-repo)
+  "generate the tag file name for a given path"
+  (concat vminor-tag-path "/" (md5 tag-repo) vminor-tag-file-post-fix))
+
+(defun vminor-regen-tags(regen_all)
   "regenerate the tags file using ctags. so you need to have ctags in your path for this to work"
-  (interactive) ; make this ask for files and paths
-  (let ((tag-file (concat vminor-tag-path vminor-tag-file-name))
-        (repos vminor-path-to-repos))
+  (interactive "p")
+  (let ((repos vminor-path-to-repos))
     ; delete excisting TAGS file
-    (if (file-exists-p tag-file)
-        (progn
-          (message "deleting file: %s" tag-file)
-          (delete-file tag-file)))
     ; iterate over repos
     (dolist (rep repos)
       (let ((exclutions (car (cdr rep)))
             (static (cdr (cdr rep)))
             (repo (car rep))
             (ctags-switches vminor-ctags-verilog-def)
-            (extentions vminor-file-extention))
-        (vminor-run-etags repo exclutions static ctags-switches extentions)))))
+            (extentions vminor-file-extention)
+            (tag-file (generate-tag-file-name (car rep))))
+        (when (or (not static) regen_all)
+          (if (file-exists-p tag-file)
+              (progn
+                (message "deleting file: %s" tag-file)
+                (delete-file tag-file)))
+          (vminor-run-etags repo exclutions ctags-switches extentions tag-file))))))
 
 (defadvice xref-find-definitions (around refresh-etags activate)
    "Rerun etags and reload tags if tag not found and redo find-tag.
@@ -120,7 +125,7 @@
                  (not (ding))
                  (y-or-n-p "Buffer is modified, save it? ")
                  (save-buffer))
-            (vminor-regen-tags)
+            (vminor-regen-tags nil)
             ad-do-it)))
 
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
@@ -135,19 +140,28 @@
            (point))))
     p))
 
+(defun generate-tags-list (repo-list)
+  (let ((res '()))
+    (dolist (rep repo-list res)
+      (let* ((exclutions (car (cdr rep)))
+             (static (cdr (cdr rep)))
+             (repo (car rep))
+             (tag-name (generate-tag-file-name repo)))
+        (add-to-list 'res tag-name)))))
+
 (defun check-for-tags-table ()
   "check if the tags are loaded and if not check if it can be regenerated"
   ;This needs update to check if vc-root fails
     (if (null (get-buffer vminor-tag-file-name))
         (cond
          ((not (null vminor-path-to-repos))
-          (vminor-regen-tags)
-          (visit-tags-table (concat vminor-tag-path vminor-tag-file-name))
+          (vminor-regen-tags nil)
+          (setq tags-table-list (generate-tags-list vminor-path-to-repos))
           t)
          ((not (null vminor-use-vc-root-for-tags))
           (add-to-list 'vminor-path-to-repos (cons (vc-root-dir) nil))
-          (vminor-regen-tags)
-          (visit-tags-table (concat vminor-tag-path vminor-tag-file-name))
+          (vminor-regen-tags nil)
+          (setq tags-table-list (generate-tags-list vminor-path-to-repos))
           t)
          (t nil))
       t))
@@ -224,8 +238,8 @@
             (define-key map "\t" 'vminor-verilog-tab)
             (define-key map (kbd "C-c a") 'hs-toggle-hiding)
             map)
-  (add-to-list 'tags-table-list
-               (concat vminor-tag-path vminor-tag-file-name))
+  (setq tags-table-list
+               (generate-tags-list vminor-path-to-repos))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
   (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function))
   (flyspell-prog-mode))
