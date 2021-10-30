@@ -205,13 +205,25 @@
     (setq tags-he-expand-list (cdr tags-he-expand-list))
     t))
 
-; compose the compleation order
-(defalias 'vminor-expand-abbrev (make-hippie-expand-function
-                                 '(try-expand-dabbrev
-                                   try-expand-sv
-                                   try-expand-common-uvm
-                                   try-expand-dabbrev-visible
-                                   try-expand-tag)))
+
+(require 'icrib-buffer-and-tag-compleation nil t)
+(if (featurep 'icrib-buffer-and-tag-compleation)
+    (progn
+      (message "idcrib loaded")
+      (defun vminor-expand-abbrev (dummy)
+        (let ((init-string (buffer-substring-no-properties (he-tag-beg) (point))))
+          (message init-string)
+          (icrib-buffer-and-tag-compleation init-string '("verilog-mode") nil vminor-sv-key-words))))
+
+                                        ; compose the compleation order
+      (defalias 'vminor-expand-abbrev (make-hippie-expand-function
+                                       '(try-expand-dabbrev
+                                         try-expand-sv
+                                         try-expand-common-uvm
+                                         try-expand-dabbrev-visible
+                                         try-expand-tag))))
+
+
 
 (defun vminor-verilog-tab ()
   "extend the verilog mode tab so that if the verilog-mode tab has no affect and we are at the end of a word we use the vminor-expand-abbrev function"
