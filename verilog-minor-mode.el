@@ -1,8 +1,8 @@
 (defvar vminor-ctags-verilog-def
   '("--language=none"
     "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\|interface\\)*[ \\t]*class[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\2/\""
-    "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\)*[ \\t]*task[ \\t]*\\(static\\|automatic\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)?[ \\t]*[0-9a-zA-Z\\$_]+/\\3/\""
-    "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\)*[ \\t]*function[ \\t]*\\([0-9a-zA-Z\\$_]+\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)?[ \\t]*[0-9a-zA-Z\\$_]+/\\3/\""
+    "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\)*[ \\t]*task[ \\t]*\\(static\\|automatic\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)*?\\([0-9a-zA-Z\\$_]+\\)?[ \\t]*[0-9a-zA-Z\\$_]+/\\4/\""
+    "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\)*[ \\t]*function[ \\t]*\\([0-9a-zA-Z\\$_]+\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)*?\\([0-9a-zA-Z\\$_]+\\)?[ \\t]*[0-9a-zA-Z\\$_]+/\\4/\""
     "--regex=\"/^[ \\t]*module[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
     "--regex=\"/^[ \\t]*package[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
     "--regex=\"/^[ \\t]*program[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
@@ -11,10 +11,10 @@
     "--regex=\"/^[ \\t]*\\`define[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\`\\1/\""
     "--regex=\"/^.*}[ \\t]*\\([0-9a-zA-Z\\$_]+\\)[ \\t]*;/\\1/\""
     "--regex=\"/^.*)[ \\t]*\\([0-9a-zA-Z\\$_]+\\)[ \\t]*;/\\1/\""
-    "--regex=\"/^[ \\t]*\\(static\\|local\\|private\\|rand\\)*[ \\t]*\\(shortint\\|int\\|longint\\)[ \\t]*unsigned?\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
-    "--regex=\"/^[ \\t]*\\(static\\|local\\|private\\|rand\\)*[ \\t]*\\(byte\\|bit\\|logic\\|reg\\|integer\\|time\\)\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
-    "--regex=\"/^[ \\t]*\\(static\\|local\\|private\\)*[ \\t]*\\(real\\|shortreal\\|chandle\\|string\\|event\\)\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
-    "--regex=\"/^[ \\t]*\\(input\\|output\\|inout\\)?[ \\t]*\\([.+]\\)*[ \\t]*\\(wire\\|reg\\|logic\\)[ \\t]*\\([.+]\\)*[ \\t]*\\(#\\(\\(.+\\)\\|[ \\t]+\\)\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\8/\""
+    ;"--regex=\"/^[ \\t]*\\(static\\|local\\|private\\|rand\\)*[ \\t]*\\(shortint\\|int\\|longint\\)[ \\t]*unsigned?\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
+    ;"--regex=\"/^[ \\t]*\\(static\\|local\\|private\\|rand\\)*[ \\t]*\\(byte\\|bit\\|logic\\|reg\\|integer\\|time\\)\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
+    ;"--regex=\"/^[ \\t]*\\(static\\|local\\|private\\)*[ \\t]*\\(real\\|shortreal\\|chandle\\|string\\|event\\)\\([ \\t]*[.+]\\)*[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\4/\""
+    ;"--regex=\"/^[ \\t]*\\(input\\|output\\|inout\\)?[ \\t]*\\([.+]\\)*[ \\t]*\\(wire\\|reg\\|logic\\)[ \\t]*\\([.+]\\)*[ \\t]*\\(#\\(\\(.+\\)\\|[ \\t]+\\)\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\8/\""
     "--regex=\"/^[ \\t]*\\(parameter\\|localparam\\).*[ \\t]+\\([0-9a-zA-Z\\$_]+\\)[ \\t]*=.*;/\\2/\"")
   "define how ctags should find system verilog tags")
 
@@ -47,6 +47,7 @@
     "foreach" "break"
     "semaphore"
     "covergroup" "coverpoint" "cross"
+    "constraint"
     "push_back" "push_front" "pop_back" "pop_front"
     "$display" "$sformatf")
   "System verilog keywords and functions")
