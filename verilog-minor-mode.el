@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 (defvar vminor-ctags-verilog-def
   '("--language=none"
     "--regex=\"/^[ \\t]*\\(static\\|local\\|virtual\\|protected\\|interface\\)*[ \\t]*class[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\2/\""
@@ -57,7 +59,7 @@
     "uvm_component" "`uvm_component_utils")
   "System verilog keywords and functions")
 
-(defun vminor-run-etags (repo exclution ctags-switches extentions tag-file)
+(defun vminor--run-etags (repo exclutions ctags-switches extentions tag-file)
   "Generate the find/etags commandline and run it"
   (let ((cmd "find")
         (first t))
@@ -94,7 +96,7 @@
     (setq cmd (concat cmd " -o " tag-file))
     (shell-command cmd)))
 
-(defun generate-tag-file-name (tag-repo)
+(defun vminor--generate-tag-file-name (tag-repo)
   "generate the tag file name for a given path"
   (concat vminor-tag-path "/" (md5 tag-repo) vminor-tag-file-post-fix))
 
@@ -110,13 +112,13 @@
             (repo (car rep))
             (ctags-switches vminor-ctags-verilog-def)
             (extentions vminor-file-extention)
-            (tag-file (generate-tag-file-name (car rep))))
+            (tag-file (vminor--generate-tag-file-name (car rep))))
         (when (or (not static) regen_all)
           (if (file-exists-p tag-file)
               (progn
                 (message "deleting file: %s" tag-file)
                 (delete-file tag-file)))
-          (vminor-run-etags repo exclutions ctags-switches extentions tag-file))))))
+          (vminor--run-etags repo exclutions ctags-switches extentions tag-file))))))
 
 (defadvice xref-find-definitions (around refresh-etags activate)
    "Rerun etags and reload tags if tag not found and redo find-tag.
@@ -132,7 +134,7 @@
 
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
 ; this need to be updated to allow for dollar sign($) or back tick in front of the word
-(defun he-tag-beg ()
+(defun vminor--tag-beg ()
   "find the start of the start of the system verilog expression. this only looks at words for now(so I lied in the first sentece)"
   (let ((p
          (save-excursion
@@ -142,58 +144,58 @@
            (point))))
     p))
 
-(defun generate-tags-list (repo-list)
+(defun vminor--generate-tags-list (repo-list)
   (let ((res '()))
     (dolist (rep repo-list res)
       (let* ((exclutions (car (cdr rep)))
              (static (cdr (cdr rep)))
              (repo (car rep))
-             (tag-name (generate-tag-file-name repo)))
+             (tag-name (vminor--generate-tag-file-name repo)))
         (add-to-list 'res tag-name)))))
 
-(defun check-for-tags-table ()
+(defun vminor--check-for-tags-table ()
   "check if the tags are loaded and if not check if it can be regenerated"
   ;This needs update to check if vc-root fails
     (if (null (get-buffer vminor-tag-file-name))
         (cond
          ((not (null vminor-path-to-repos))
           (vminor-regen-tags nil)
-          (setq tags-table-list (generate-tags-list vminor-path-to-repos))
+          (setq tags-table-list (vminor--generate-tags-list vminor-path-to-repos))
           t)
          ((not (null vminor-use-vc-root-for-tags))
           (add-to-list 'vminor-path-to-repos (cons (vc-root-dir) nil))
           (vminor-regen-tags nil)
-          (setq tags-table-list (generate-tags-list vminor-path-to-repos))
+          (setq tags-table-list (vminor--generate-tags-list vminor-path-to-repos))
           t)
          (t nil))
       t))
 
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
-(defun tags-complete-tag (string predicate what)
+(defun vminor--tags-complete-tag (string predicate what)
   "find compleations from tags table"
   (save-excursion
-    (if (check-for-tags-table)
+    (if (vminor--check-for-tags-table)
       (if (eq what t)
           (all-completions string (tags-completion-table) predicate)
         (try-completion string (tags-completion-table) predicate))
       nil)))
 
-(defun try-expand-tag (old)
+(defun vminor--try-expand-tag (old)
   "try to find compleations in tags"
-  (find-expand-tag old 'tags-complete-tag))
+  (vminor--find-expand-tag old 'vminor--tags-complete-tag))
 
-(defun try-expand-sv (old)
+(defun vminor--try-expand-sv (old)
   "try to find compleation from the system verilog spec"
-  (find-expand-tag old vminor-sv-key-words))
+  (vminor--find-expand-tag old vminor-sv-key-words))
 
-(defun try-expand-common-uvm (old)
+(defun vminor--try-expand-common-uvm (old)
   "try to find compleation from the most commenly used UVM structures"
-  (find-expand-tag old vminor-common-uvm))
+  (vminor--find-expand-tag old vminor-common-uvm))
 
-(defun find-expand-tag (old what)
+(defun vminor--find-expand-tag (old what)
   "find tags from a function or a list this is made to fit in make-hippie-expand-function"
   (unless  old
-    (he-init-string (he-tag-beg) (point))
+    (he-init-string (vminor--tag-beg) (point))
     (setq tags-he-expand-list (sort
                           (all-completions he-search-string what) 'string-lessp)))
   (while (and tags-he-expand-list
@@ -210,27 +212,23 @@
 
 (require 'icrib-buffer-and-tag-compleation nil t)
 (if (featurep 'icrib-buffer-and-tag-compleation)
-    (progn
-      (message "idcrib loaded")
-      (defun vminor-expand-abbrev (dummy)
-        (let ((init-string (buffer-substring-no-properties (he-tag-beg) (point))))
-          (message init-string)
-          (icrib-buffer-and-tag-compleation init-string '("verilog-mode") nil vminor-sv-key-words))))
+    (defun vminor--expand-abbrev (dummy)
+      (let ((init-string (buffer-substring-no-properties (vminor--tag-beg) (point))))
+        (icrib-buffer-and-tag-compleation init-string '("verilog-mode") nil vminor-sv-key-words)))
 
                                         ; compose the compleation order
-      (defalias 'vminor-expand-abbrev (make-hippie-expand-function
-                                       '(try-expand-dabbrev
-                                         try-expand-sv
-                                         try-expand-common-uvm
-                                         try-expand-dabbrev-visible
-                                         try-expand-tag))))
+  (defalias 'vminor--expand-abbrev (make-hippie-expand-function
+                                   '(try-expand-dabbrev
+                                     vminor--try-expand-sv
+                                     vminor--try-expand-common-uvm
+                                     try-expand-dabbrev-visible
+                                     vminor--try-expand-tag))))
 
 
 
 (defun vminor-verilog-tab ()
-  "extend the verilog mode tab so that if the verilog-mode tab has no affect and we are at the end of a word we use the vminor-expand-abbrev function"
+  "extend the verilog mode tab so that if the verilog-mode tab has no affect and we are at the end of a word we use the vminor--expand-abbrev function"
   (interactive)
-  (message "my version")
   (let ((boi-point
            (save-excursion
              (back-to-indentation)
@@ -241,7 +239,7 @@
           (back-to-indentation)
           (= (point) boi-point))
          (looking-at "\\>"))
-        (vminor-expand-abbrev nil)
+        (vminor--expand-abbrev nil)
       (setq he-num -1))))
 
 (require 'verilog-mode)
@@ -253,7 +251,7 @@
             (define-key map (kbd "C-c a") 'hs-toggle-hiding)
             map)
   (setq tags-table-list
-               (generate-tags-list vminor-path-to-repos))
+               (vminor--generate-tags-list vminor-path-to-repos))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
   (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function))
   (flyspell-prog-mode))
