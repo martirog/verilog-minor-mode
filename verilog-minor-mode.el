@@ -1,5 +1,6 @@
 ;; -*- lexical-binding: t -*-
 
+(require 'etags-wrapper)
 (defvar vminor-ctags-verilog-def
   '("--language=none"
     "--regex=\"/^[ \\t]*\\(extern\\|static\\|local\\|virtual\\|protected\\|interface\\)*[ \\t]*class[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\2/\""
@@ -59,79 +60,6 @@
     "uvm_component" "`uvm_component_utils")
   "System verilog keywords and functions")
 
-(defun vminor--run-etags (repo exclutions ctags-switches extentions tag-file)
-  "Generate the find/etags commandline and run it"
-  (let ((cmd "find")
-        (first t))
-    (setq cmd (concat cmd " " repo))
-                                        ; iterate over paths in the repo to ignore
-    (let ((first_it t))
-      (dolist (elem exclutions cmd)
-        (if (null first)
-            (setq cmd (concat cmd " -or")))
-        (when first_it
-          (setq cmd (concat cmd " \\("))
-          (setq first_it nil))
-        (setq cmd (concat cmd " -path \"*" elem "*\""))
-        (setq first nil))
-      (when (null first_it)
-        (setq cmd (concat cmd " \\) -prune"))))
-                                        ; iterate over file extentions to search in
-    (let ((first_it t))
-      (dolist (elem extentions cmd)
-        (if (null first)
-            (setq cmd (concat cmd " -or")))
-        (when first_it
-          (setq cmd (concat cmd " \\("))
-          (setq first_it nil))
-        (setq cmd (concat cmd " -name \"*\\." elem "\""))
-        (setq first nil))
-      (when (null first_it)
-        (setq cmd (concat cmd " \\) -print"))))
-                                        ; add ctags command
-    (let ((etags-run (car (directory-files (invocation-directory) t ".*etags"))))
-      (setq cmd (concat cmd " | xargs " etags-run " -a"))) ; a hack for now
-    (dolist (elem ctags-switches cmd)
-      (setq cmd (concat cmd " " elem)))
-    (setq cmd (concat cmd " -o " tag-file))
-    (shell-command cmd)))
-
-(defun vminor--generate-tag-file-name (tag-repo)
-  "generate the tag file name for a given path"
-  (concat vminor-tag-path "/" (md5 tag-repo) vminor-tag-file-post-fix))
-
-(defun vminor-regen-tags(regen_all)
-  "regenerate the tags file using ctags. so you need to have ctags in your path for this to work"
-  (interactive "p")
-  (let ((repos vminor-path-to-repos))
-    ; delete excisting TAGS file
-    ; iterate over repos
-    (dolist (rep repos)
-      (let ((exclutions (car (cdr rep)))
-            (static (cdr (cdr rep)))
-            (repo (car rep))
-            (ctags-switches vminor-ctags-verilog-def)
-            (extentions vminor-file-extention)
-            (tag-file (vminor--generate-tag-file-name (car rep))))
-        (when (or (not static) regen_all)
-          (if (file-exists-p tag-file)
-              (progn
-                (message "deleting file: %s" tag-file)
-                (delete-file tag-file)))
-          (vminor--run-etags repo exclutions ctags-switches extentions tag-file))))))
-
-(defadvice xref-find-definitions (around refresh-etags activate)
-   "Rerun etags and reload tags if tag not found and redo find-tag.
-   If buffer is modified, ask about save before running etags."
-   (condition-case err
-       ad-do-it
-     (error (and (buffer-modified-p)
-                 (not (ding))
-                 (y-or-n-p "Buffer is modified, save it? ")
-                 (save-buffer))
-            (vminor-regen-tags nil)
-            ad-do-it)))
-
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
 ; this need to be updated to allow for dollar sign($) or back tick in front of the word
 (defun vminor--tag-beg ()
@@ -144,37 +72,11 @@
            (point))))
     p))
 
-(defun vminor--generate-tags-list (repo-list)
-  (let ((res '()))
-    (dolist (rep repo-list res)
-      (let* ((exclutions (car (cdr rep)))
-             (static (cdr (cdr rep)))
-             (repo (car rep))
-             (tag-name (vminor--generate-tag-file-name repo)))
-        (add-to-list 'res tag-name)))))
-
-(defun vminor--check-for-tags-table ()
-  "check if the tags are loaded and if not check if it can be regenerated"
-  ;This needs update to check if vc-root fails
-    (if (null (get-buffer vminor-tag-file-name))
-        (cond
-         ((not (null vminor-path-to-repos))
-          (vminor-regen-tags nil)
-          (setq tags-table-list (vminor--generate-tags-list vminor-path-to-repos))
-          t)
-         ((not (null vminor-use-vc-root-for-tags))
-          (add-to-list 'vminor-path-to-repos (cons (vc-root-dir) nil))
-          (vminor-regen-tags nil)
-          (setq tags-table-list (vminor--generate-tags-list vminor-path-to-repos))
-          t)
-         (t nil))
-      t))
-
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
 (defun vminor--tags-complete-tag (string predicate what)
   "find compleations from tags table"
   (save-excursion
-    (if (vminor--check-for-tags-table)
+    (if (etags-wrapper-check-for-tags-table)
       (if (eq what t)
           (all-completions string (tags-completion-table) predicate)
         (try-completion string (tags-completion-table) predicate))
@@ -242,6 +144,14 @@
         (vminor--expand-abbrev nil)
       (setq he-num -1))))
 
+(defun vminor--setup-etags-wrapper()
+  (setq-local etags-wrapper-switche-def vminor-ctags-verilog-def)
+  (setq-local etags-wrapper-path-to-repos vminor-path-to-repos)
+  (setq-local etags-wrapper-file-extention vminor-file-extention)
+  (setq-local etags-wrapper-tag-path vminor-tag-path)
+  (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
+  (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags))
+
 (require 'verilog-mode)
 (define-minor-mode verilog-minor-mode
   "set up verilog minor mode"
@@ -250,8 +160,9 @@
             (define-key map "\t" 'vminor-verilog-tab)
             (define-key map (kbd "C-c a") 'hs-toggle-hiding)
             map)
+  (vminor--setup-etags-wrapper)
   (setq tags-table-list
-               (vminor--generate-tags-list vminor-path-to-repos))
+               (etags-wrapper-generate-tags-list vminor-path-to-repos))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
   (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function))
   (flyspell-prog-mode))
