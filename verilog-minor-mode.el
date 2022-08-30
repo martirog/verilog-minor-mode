@@ -5,7 +5,7 @@
   '("--language=none"
     "--regex=\"/^[ \\t]*\\(extern\\|static\\|local\\|virtual\\|protected\\|interface\\)*[ \\t]*class[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\2/\""
     "--regex=\"/^[ \\t]*\\(extern\\|static\\|local\\|virtual\\|protected\\)*[ \\t]*task[ \\t]*\\(static\\|automatic\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)?\\([0-9a-zA-Z\\$_]+\\).*/\\4/\""
-    "--regex=\"/^[ \\t]*\\(extern\\|static\\|local\\|virtual\\|protected\\)*[ \\t]*function[ \\t]*\\([0-9a-zA-Z\\$_]+\\)?[ \\t]*\\(\\[[.*]*\\]\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)?\\([0-9a-zA-Z\\$_]+\\).*/\\5/\""
+    "--regex=\"/^[ \\t]*\\(import \\(.DPI-C[ \\t]*\\(\\.*[ \\t]*=[ \\t]*\\)?\\).\\)?[ \\t]*\\(context\\|extern\\|static\\|local\\|virtual\\|protected\\)*[ \\t]*function[ \\t]*\\(static\\|automatic\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+\\)?[ \\t]*\\(\\[[.*]*\\]\\)?[ \\t]*\\([0-9a-zA-Z\\$_]+::\\)?\\([0-9a-zA-Z\\$_]+\\).*/\\9/\""
     "--regex=\"/^[ \\t]*module[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
     "--regex=\"/^[ \\t]*package[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
     "--regex=\"/^[ \\t]*program[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\1/\""
