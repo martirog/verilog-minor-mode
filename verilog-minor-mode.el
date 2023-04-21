@@ -150,7 +150,9 @@
   (setq-local etags-wrapper-file-extention vminor-file-extention)
   (setq-local etags-wrapper-tag-path vminor-tag-path)
   (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
-  (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags))
+  (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags)
+  ; next line depends on etags-wrapper-path-to-repos been set before it
+  (setq-local tags-table-list (etags-wrapper-get-tag-file-list)))
 
 (require 'verilog-mode)
 (define-minor-mode verilog-minor-mode
@@ -161,8 +163,6 @@
             (define-key map (kbd "C-c a") 'hs-toggle-hiding)
             map)
   (vminor--setup-etags-wrapper)
-  (setq tags-table-list
-               (etags-wrapper-generate-tags-list vminor-path-to-repos))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
   (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function))
   (flyspell-prog-mode))
