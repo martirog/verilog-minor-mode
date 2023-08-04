@@ -155,6 +155,7 @@
   (setq-local tags-table-list (etags-wrapper-get-tag-file-list)))
 
 (require 'verilog-mode)
+(require 'hideshow)
 (define-minor-mode verilog-minor-mode
   "set up verilog minor mode"
   :lighter " vmin"
