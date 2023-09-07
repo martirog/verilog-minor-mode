@@ -1,6 +1,7 @@
 ;; -*- lexical-binding: t -*-
 
 (require 'etags-wrapper)
+(require 'project-wrapper)
 (defvar vminor-ctags-verilog-def
   '("--language=none"
     "--regex=\"/^[ \\t]*\\(extern\\|static\\|local\\|virtual\\|protected\\|interface\\)*[ \\t]*class[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\2/\""
@@ -146,13 +147,21 @@
 
 (defun vminor--setup-etags-wrapper()
   (setq-local etags-wrapper-switche-def vminor-ctags-verilog-def)
-  (setq-local etags-wrapper-path-to-repos vminor-path-to-repos)
+
+  (if (require 'project nil t)
+      (progn
+        (project-wrapper-initialize (project-root (project-current)))
+        (setq-local etags-wrapper-path-to-repos (project-wrapper-etags-paths-to-repos))
+        (when (and (null etags-wrapper-path-to-repos) vminor-path-to-repos)
+          (setq-local etags-wrapper-path-to-repos vminor-path-to-repos)))
+    (setq-local etags-wrapper-path-to-repos vminor-path-to-repos))
+
   (setq-local etags-wrapper-file-extention vminor-file-extention)
   (setq-local etags-wrapper-tag-path vminor-tag-path)
   (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
   (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags)
-  ; next line depends on etags-wrapper-path-to-repos been set before it
-  (setq-local tags-table-list (etags-wrapper-get-tag-file-list)))
+  (setq-local tags-table-list
+              (etags-wrapper-generate-tags-list etags-wrapper-path-to-repos)))
 
 (require 'verilog-mode)
 (require 'hideshow)
