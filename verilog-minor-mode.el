@@ -1,7 +1,6 @@
 ;; -*- lexical-binding: t -*-
 
 (require 'etags-wrapper)
-(require 'project-wrapper)
 (defvar vminor-ctags-verilog-def
   '("--language=none"
     "--regex=\"/^[ \\t]*\\(extern\\|static\\|local\\|virtual\\|protected\\|interface\\)*[ \\t]*class[ \\t]*\\([0-9a-zA-Z\\$_]+\\)/\\2/\""
@@ -145,17 +144,22 @@
         (vminor--expand-abbrev nil)
       (setq he-num -1))))
 
-(defun vminor--setup-etags-wrapper()
+(when (require 'project-wrapper nil t)
+  (defun vminor--project-wrapper-init-hoook (pr-root)
+    (setq-local etags-wrapper-path-to-repos (project-wrapper-etags-paths-to-repos))
+    (when (and (null etags-wrapper-path-to-repos) vminor-path-to-repos)
+      (setq-local etags-wrapper-path-to-repos vminor-path-to-repos))
+    (setq-local etags-wrapper-switche-def vminor-ctags-verilog-def)
+    (setq-local etags-wrapper-file-extention vminor-file-extention)
+    (setq-local etags-wrapper-tag-path vminor-tag-path)
+    (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
+    (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags)
+    (setq-local tags-table-list
+                (etags-wrapper-generate-tags-list etags-wrapper-path-to-repos))))
+
+(defun vminor--setup-etags-wrapper ()
   (setq-local etags-wrapper-switche-def vminor-ctags-verilog-def)
-
-  (if (require 'project nil t)
-      (progn
-        (project-wrapper-initialize (project-root (project-current)))
-        (setq-local etags-wrapper-path-to-repos (project-wrapper-etags-paths-to-repos))
-        (when (and (null etags-wrapper-path-to-repos) vminor-path-to-repos)
-          (setq-local etags-wrapper-path-to-repos vminor-path-to-repos)))
-    (setq-local etags-wrapper-path-to-repos vminor-path-to-repos))
-
+  (setq-local etags-wrapper-path-to-repos vminor-path-to-repos)
   (setq-local etags-wrapper-file-extention vminor-file-extention)
   (setq-local etags-wrapper-tag-path vminor-tag-path)
   (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
@@ -172,7 +176,11 @@
             (define-key map "\t" 'vminor-verilog-tab)
             (define-key map (kbd "C-c a") 'hs-toggle-hiding)
             map)
-  (vminor--setup-etags-wrapper)
+  (if (functionp 'vminor--project-wrapper-init-hoook)
+      (progn
+        (add-hook 'project-wrapper-initialize-hook 'vminor--project-wrapper-init-hoook 0 t)
+        (project-wrapper-initialize (project-root (project-current))))
+    (vminor--setup-etags-wrapper))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
   (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function))
   (flyspell-prog-mode))
