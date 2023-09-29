@@ -167,6 +167,7 @@
   (setq-local tags-table-list
               (etags-wrapper-generate-tags-list etags-wrapper-path-to-repos)))
 
+(require 'grep)
 (defun vminor-create-grep-files-aliases ()
   (let* ((glob-var (mapconcat (lambda (in) (concat "*." in)) vminor-file-extention " "))
          (glob-list (mapcar (lambda (in) (cons in glob-var)) vminor-file-extention)))
