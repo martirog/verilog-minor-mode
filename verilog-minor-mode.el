@@ -22,7 +22,7 @@
   "define how ctags should find system verilog tags")
 
 (defvar vminor-path-to-repos nil
-  "list of cons: repos to search for systemverilog files . exclude list")
+  "list of etags-wrapper-etags-info")
 
 (defvar vminor-file-extention
   '("v" "sv" "vh" "svh")
@@ -146,26 +146,26 @@
 
 (when (require 'project-wrapper nil t)
   (defun vminor--project-wrapper-init-hoook (pr-root)
-    (setq-local etags-wrapper-path-to-repos (project-wrapper-etags-paths-to-repos))
-    (when (and (null etags-wrapper-path-to-repos) vminor-path-to-repos)
-      (setq-local etags-wrapper-path-to-repos vminor-path-to-repos))
+    (setq-local etags-wrapper-etags-repos (project-wrapper-etags-paths-to-repos))
+    (when (and (null etags-wrapper-etags-repos) vminor-path-to-repos)
+      (setq-local etags-wrapper-etags-repos vminor-path-to-repos))
     (setq-local etags-wrapper-switche-def vminor-ctags-verilog-def)
     (setq-local etags-wrapper-file-extention vminor-file-extention)
     (setq-local etags-wrapper-tag-path vminor-tag-path)
     (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
     (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags)
     (setq-local tags-table-list
-                (etags-wrapper-generate-tags-list etags-wrapper-path-to-repos))))
+                (etags-wrapper-generate-tags-list etags-wrapper-etags-repos))))
 
 (defun vminor--setup-etags-wrapper ()
   (setq-local etags-wrapper-switche-def vminor-ctags-verilog-def)
-  (setq-local etags-wrapper-path-to-repos vminor-path-to-repos)
+  (setq-local etags-wrapper-etags-repos vminor-path-to-repos)
   (setq-local etags-wrapper-file-extention vminor-file-extention)
   (setq-local etags-wrapper-tag-path vminor-tag-path)
   (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
   (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags)
   (setq-local tags-table-list
-              (etags-wrapper-generate-tags-list etags-wrapper-path-to-repos)))
+              (etags-wrapper-generate-tags-list etags-wrapper-etags-repos)))
 
 (require 'grep)
 (defun vminor-create-grep-files-aliases ()
