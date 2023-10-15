@@ -182,7 +182,7 @@
             (define-key map "\t" 'vminor-verilog-tab)
             (define-key map (kbd "C-c a") 'hs-toggle-hiding)
             map)
-  (if (functionp 'vminor--project-wrapper-init-hoook)
+  (if (and (functionp 'vminor--project-wrapper-init-hoook) (project-current))
       (progn
         (add-hook 'project-wrapper-initialize-hook 'vminor--project-wrapper-init-hoook 0 t)
         (project-wrapper-initialize (project-root (project-current))))
