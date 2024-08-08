@@ -158,8 +158,9 @@
     (setq-local etags-wrapper-tag-path vminor-tag-path)
     (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
     (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags)
-    (setq-local tags-table-list
-                (etags-wrapper-generate-tags-list etags-wrapper-etags-repos))))
+    (unless (null etags-wrapper-etags-repos)
+      (setq-local tags-table-list
+                  (etags-wrapper-generate-tags-list etags-wrapper-etags-repos)))))
 
 (defun vminor--setup-etags-wrapper ()
   (setq-local etags-wrapper-switche-def vminor-ctags-verilog-def)
@@ -188,8 +189,10 @@
             map)
   (if (and (functionp 'vminor--project-wrapper-init-hoook) (project-current))
       (progn
-        (add-hook 'project-wrapper-initialize-hook 'vminor--project-wrapper-init-hoook 0 t)
-        (project-wrapper-initialize (project-root (project-current))))
+        (let ((pr-curr (project-current)))
+          (unless (null pr-curr)
+            (add-hook 'project-wrapper-initialize-hook 'vminor--project-wrapper-init-hoook 0 t)
+            (project-wrapper-initialize (project-root pr-curr)))))
     (vminor--setup-etags-wrapper))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
   (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function))
