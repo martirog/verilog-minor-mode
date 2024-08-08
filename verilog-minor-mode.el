@@ -61,6 +61,10 @@
     "uvm_component" "`uvm_component_utils")
   "System verilog keywords and functions")
 
+(defvar vminor-compilation-error-parsing-alist
+  '((xcelium "^\\(?:xmvlog:\\|xmelab:\\)[ \\t]*\\*\\(?:SE\\|E\\|F\\|\\(W\\)\\|\\(N\\)\\),.*?\\(?:(\\(?:\\([^ ,]*\\),\\([0-9]*\\)|\\([0-9]*\\)\\))\\)*?:" 3 4 5 (1 . 2)))
+  "List of compilation Error/Warniung/Info sor systemverilog compilers")
+
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
 ; this need to be updated to allow for dollar sign($) or back tick in front of the word
 (defun vminor--tag-beg ()
@@ -180,6 +184,15 @@
          (glob-list (mapcar (lambda (in) (cons in glob-var)) vminor-file-extention)))
     (append grep-files-aliases glob-list)))
 
+(defun vminor--add-compilastion-error-regexp ()
+  (when (not (assoc 'xcelium compilation-error-regexp-alist-alist))
+    (mapc
+     (lambda (itm)
+       (push (car itm) compilation-error-regexp-alist)
+       (push itm compilation-error-regexp-alist-alist))
+     vminor-compilation-error-parsing-alist)))
+
+
 (require 'verilog-mode)
 (require 'hideshow)
 (define-minor-mode verilog-minor-mode
@@ -197,6 +210,7 @@
             (project-wrapper-initialize (project-root pr-curr)))))
     (vminor--setup-etags-wrapper))
   (add-hook 'verilog-mode-hook 'hs-minor-mode)
+  (add-hook 'compilation-mode-hook 'vminor--add-compilastion-error-regexp)
   (add-to-list 'hs-special-modes-alist (list 'verilog-mode (list verilog-beg-block-re-ordered 0) "\\<end\\>" nil 'verilog-forward-sexp-function))
   (flyspell-prog-mode))
 
