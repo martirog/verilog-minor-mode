@@ -73,6 +73,8 @@
            (point))))
     p))
 
+(require 'hippie-exp)
+(require 'etags)
 ; copied from https://www.emacswiki.org/emacs/HippieExpand
 (defun vminor--tags-complete-tag (string predicate what)
   "find compleations from tags table"
@@ -97,23 +99,24 @@
 
 (defun vminor--find-expand-tag (old what)
   "find tags from a function or a list this is made to fit in make-hippie-expand-function"
-  (unless  old
-    (he-init-string (vminor--tag-beg) (point))
-    (setq tags-he-expand-list (sort
-                          (all-completions he-search-string what) 'string-lessp)))
-  (while (and tags-he-expand-list
-              (he-string-member (car tags-he-expand-list) he-tried-table))
-    (setq tags-he-expand-list (cdr tags-he-expand-list)))
-  (if (null tags-he-expand-list)
-      (progn
-        (when old (he-reset-string))
-        ())
-    (he-substitute-string (car tags-he-expand-list))
-    (setq tags-he-expand-list (cdr tags-he-expand-list))
-    t))
+  (let ((tags-he-expand-list))
+    (unless  old
+      (he-init-string (vminor--tag-beg) (point))
+      (setq tags-he-expand-list (sort
+                                 (all-completions he-search-string what) 'string-lessp)))
+    (while (and tags-he-expand-list
+                (he-string-member (car tags-he-expand-list) he-tried-table))
+      (setq tags-he-expand-list (cdr tags-he-expand-list)))
+    (if (null tags-he-expand-list)
+        (progn
+          (when old (he-reset-string))
+          ())
+      (he-substitute-string (car tags-he-expand-list))
+      (setq tags-he-expand-list (cdr tags-he-expand-list))
+      t)))
 
 
-(require 'icrib-buffer-and-tag-compleation nil t)
+(require 'icrib-buffer-and-tag-compleation "ido-compleation-read-in-buffer.el" t)
 (if (featurep 'icrib-buffer-and-tag-compleation)
     (defun vminor--expand-abbrev (dummy)
       (let ((init-string (buffer-substring-no-properties (vminor--tag-beg) (point))))
