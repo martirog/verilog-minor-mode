@@ -162,8 +162,10 @@
     (setq-local etags-wrapper-tag-path vminor-tag-path)
     (setq-local etags-wrapper-tag-file-post-fix vminor-tag-file-post-fix)
     (setq-local etags-wrapper-use-vc-root-for-tags vminor-use-vc-root-for-tags)
-    (setq-local verilog-tool 'verilog-simulator)
-    (setq-local verilog-simulator (project-wrapper-get-compile-cmd pr-root))
+    (let ((compile-cmd (project-wrapper-get-compile-cmd pr-root)))
+      (when compile-cmd
+        (setq-local verilog-tool 'verilog-simulator)
+        (setq-local verilog-simulator compile-cmd)))
     (unless (null etags-wrapper-etags-repos)
       (setq-local tags-table-list
                   (etags-wrapper-generate-tags-list etags-wrapper-etags-repos)))))
