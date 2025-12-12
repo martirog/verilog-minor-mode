@@ -187,11 +187,18 @@
          (glob-list (mapcar (lambda (in) (cons in glob-var)) vminor-file-extention)))
     (append grep-files-aliases glob-list)))
 
+;;(defun vminor--remove-all-error-regexp-hack()
+;;  (setq compilation-error-regexp-alist nil))
+
 (defun vminor--add-compilastion-error-regexp ()
+  (when (not (member 'xcelium compilation-error-regexp-alist))
+    (mapc
+     (lambda (itm)
+       (push (car itm) compilation-error-regexp-alist))
+     vminor-compilation-error-parsing-alist))
   (when (not (assoc 'xcelium compilation-error-regexp-alist-alist))
     (mapc
      (lambda (itm)
-       (push (car itm) compilation-error-regexp-alist)
        (push itm compilation-error-regexp-alist-alist))
      vminor-compilation-error-parsing-alist)))
 
