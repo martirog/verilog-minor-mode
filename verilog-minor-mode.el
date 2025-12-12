@@ -168,7 +168,8 @@
         (setq-local verilog-simulator compile-cmd)))
     (unless (null etags-wrapper-etags-repos)
       (setq-local tags-table-list
-                  (etags-wrapper-generate-tags-list etags-wrapper-etags-repos)))))
+                  (etags-wrapper-generate-tags-list etags-wrapper-etags-repos)))
+    (setq project-mode-line nil)))
 
 (defun vminor--setup-etags-wrapper ()
   (setq-local etags-wrapper-switche-def vminor-ctags-verilog-def)
